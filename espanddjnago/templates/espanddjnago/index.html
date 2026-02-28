@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="refresh" content="9">
+</head>
+<body>
+    <button onclick="sendCommand('wenton')">Включить</button>
+    <button onclick="sendCommand('wentoff')">Выключить</button>
+    <h3>Датчик: <span id="sensor">0</span></h3>
+    <div style="width: 800px; height: 400px; margin: auto;">
+        <canvas id="mChart"></canvas>
+    </div>
+</body>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<canvas id="mChart"></canvas>
+<script>
+    const labels = {{ times|safe }}
+    const values = {{ temp|safe }}
+    const ctx = document.getElementById('mChart');
+    new Chart(ctx, {
+    type: 'line', 
+    data: {
+      labels: labels,
+      datasets: [{
+        label: 'Градусы',
+        data: values,
+        borderColor: 'red',     
+        tension: 0.3  
+      }]
+    }
+  });
+    async function sendCommand(command){
+        const response = await fetch(`/${command}/`);
+        const data = await response.json();
+        if (data.status === 'success'){
+            alert('есть');
+        }
+    }
+    async function updateSensor() {
+        let r = await fetch('/sensors');
+        let d = await r.json();
+        console.log(d);
+        console.log(r);
+        document.getElementById('sensor').innerText = d.value;
+        }
+    updateSensor()
+    setInterval(updateSensor, 9000);
+</script>
+</html>
